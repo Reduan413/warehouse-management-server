@@ -49,10 +49,26 @@ async function run() {
     });
 
     app.get("/inventory", async (req, res) => {
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
       const query = {};
       const cursor = inventorysCollection.find(query);
-      const inventorys = await cursor.toArray();
+      let inventorys;
+      if (page || size) {
+        inventorys = await cursor
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+      } else {
+        inventorys = await cursor.toArray();
+      }
+
       res.send(inventorys);
+    });
+
+    app.get("/inventoryCount", async (req, res) => {
+      const count = await inventorysCollection.estimatedDocumentCount();
+      res.send({ count });
     });
 
     app.get("/inventory/:id", async (req, res) => {
@@ -73,21 +89,26 @@ async function run() {
     app.put("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const updatedInventory = req.body;
+      console.log(updatedInventory);
       const filter = { _id: ObjectId(id) };
-      const options = {upsert: true };
+      const options = { upsert: true };
       const updatedDoc = {
-        $set:{
-          name:updatedInventory.name,
-          email:updatedInventory.email,
-          price:updatedInventory.price,
-          img:updatedInventory.img,
-          description:updatedInventory.description,
-          quantity:updatedInventory.quantity,
-          supplierName:updatedInventory.supplierName,
-          sold:updatedInventory.sold
-        }
+        $set: {
+          // name:updatedInventory.name,
+          // email:updatedInventory.email,
+          // price:updatedInventory.price,
+          // img:updatedInventory.img,
+          // description:updatedInventory.description,
+          quantity: updatedInventory.quantity,
+          // supplierName:updatedInventory.supplierName,
+          sold: updatedInventory.sold,
+        },
       };
-      const result = await inventorysCollection.updateOne(filter, updatedDoc, options);
+      const result = await inventorysCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
       res.send(result);
     });
 
