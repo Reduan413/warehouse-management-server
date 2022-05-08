@@ -69,7 +69,28 @@ async function run() {
       res.send(result);
     });
 
-    
+    //PUT
+    app.put("/inventory/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedInventory = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = {upsert: true };
+      const updatedDoc = {
+        $set:{
+          name:updatedInventory.name,
+          email:updatedInventory.email,
+          price:updatedInventory.price,
+          img:updatedInventory.img,
+          description:updatedInventory.description,
+          quantity:updatedInventory.quantity,
+          supplierName:updatedInventory.supplierName,
+          sold:updatedInventory.sold
+        }
+      };
+      const result = await inventorysCollection.updateOne(filter, updatedDoc, options);
+      res.send(result);
+    });
+
     //delete
     app.delete("/inventory/:id", async (req, res) => {
       const id = req.params.id;
