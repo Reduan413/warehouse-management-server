@@ -138,7 +138,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Running inventory management");
+  res.send("Running inventory management 0.1");
 });
 
 app.listen(port, () => {
